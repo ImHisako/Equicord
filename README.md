@@ -6,11 +6,13 @@
 
 Equicord is a fork of [Vencord](https://github.com/Vendicated/Vencord), with over 300+ plugins.
 
-You can join our [Discord server](https://equicord.org/discord) for commits, changes, chatting, or even support.
-
 ### Included Plugins
 
 Our included plugins can be found [here](https://equicord.org/plugins).
+
+### Added Plugins on this Fork
+
+Nitro Sniper : https://github.com/neoarz/NitroSniper/tree/main
 
 ## Installing Equicord Devbuild
 
