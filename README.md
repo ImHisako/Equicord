@@ -1,18 +1,19 @@
-# [<img src="./browser/icon.png" width="40" align="left" alt="Equicord">](https://github.com/Equicord/Equicord) Equicord
+# [<img src="./browser/icon.png" width="40" align="left" alt="Equicord">](https://github.com/Equicord/Equicord) Illegalcord
 
 [![Equibop](https://img.shields.io/badge/Equibop-grey?style=flat)](https://github.com/Equicord/Equibop)
 [![Tests](https://github.com/Equicord/Equicord/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Equicord/Equicord/actions/workflows/test.yml)
 [![Discord](https://img.shields.io/discord/1173279886065029291.svg?color=768AD4&label=Discord&logo=discord&logoColor=white)](https://equicord.org/discord)
 
-Equicord is a fork of [Vencord](https://github.com/Vendicated/Vencord), with over 300+ plugins.
+Illegalcord is a fork of [Equicord](https://github.com/Equicord) & [Vencord](https://github.com/Vendicated/Vencord), with over 300+ plugins.
 
 ### Included Plugins
 
 Our included plugins can be found [here](https://equicord.org/plugins).
 
-### Added Plugins on this Fork
+### Added Plugins on Illegalcord
 
 Nitro Sniper : https://github.com/neoarz/NitroSniper/tree/main
+FakeMuteAndDeafen : https://github.com/x2b1/TestCord/tree/main/src/testcordplugins/FakeMuteAndDeafen
 
 ## Installing Equicord Devbuild
 
@@ -49,13 +50,13 @@ Build Equicord:
 pnpm build
 ```
 
-Inject Equicord into your desktop client:
+Inject Illegalcord into your desktop client:
 
 ```shell
 pnpm inject
 ```
 
-Build Equicord for web:
+Build Illegalcord for web:
 
 ```shell
 pnpm buildWeb
@@ -67,7 +68,7 @@ Note: Firefox extension zip requires Firefox for developers
 
 ## Credits
 
-Thank you to [Vendicated](https://github.com/Vendicated) for creating [Vencord](https://github.com/Vendicated/Vencord) & [Suncord](https://github.com/verticalsync/Suncord) by [verticalsync](https://github.com/verticalsync) for helping when needed.
+Thank you to [thororen1234](https://github.com/thororen1234) For Creating [Equicord](https://github.com/Equicord) & [Vendicated](https://github.com/Vendicated) for creating [Vencord](https://github.com/Vendicated/Vencord) & [Suncord](https://github.com/verticalsync/Suncord) by [verticalsync](https://github.com/verticalsync) for helping when needed.
 
 ## Disclaimer
 
