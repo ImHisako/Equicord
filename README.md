@@ -34,8 +34,8 @@ npm i -g pnpm
 Clone Equicord:
 
 ```shell
-git clone https://github.com/Equicord/Equicord
-cd Equicord
+git clone https://github.com/ImHisako/Illegalcord
+cd Illegalcord
 ```
 
 Install dependencies:
