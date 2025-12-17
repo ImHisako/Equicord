@@ -43,25 +43,14 @@ export const settings = definePluginSettings({
 const fakeVoiceState = {
     _selfMute: false,
     get selfMute() {
-        try {
-            if (!settings.store.autoMute) return this._selfMute;
-            return this.selfDeaf || this._selfMute;
-        } catch (e) {
-            return this._selfMute;
-        }
+        if (!settings.store.autoMute) return this._selfMute;
+        return this.selfDeaf || this._selfMute;
     },
     set selfMute(value) {
         this._selfMute = value;
     },
     selfDeaf: false,
-    selfVideo: false,
-    getState() {
-        return {
-            selfMute: this.selfMute,
-            selfDeaf: this.selfDeaf,
-            selfVideo: this.selfVideo
-        };
-    }
+    selfVideo: false
 };
 
 export default definePlugin({
@@ -71,29 +60,10 @@ export default definePlugin({
     settings,
 
     modifyVoiceState(e) {
-        // Forza SEMPRE i valori fake
         e.selfMute = fakeVoiceState.selfMute;
         e.selfDeaf = fakeVoiceState.selfDeaf;
         e.selfVideo = fakeVoiceState.selfVideo;
         return e;
-    },
-
-    start() {
-        // Observer per preservare lo stato tra canali
-        const VoiceStateStore = findByPropsLazy("getVoiceStateForUser");
-        const originalGetState = VoiceStateStore?.getVoiceStateForUser;
-        
-        if (originalGetState) {
-            VoiceStateStore.getVoiceStateForUser = (userId) => {
-                const state = originalGetState(userId);
-                if (state && userId === DiscordNative.userId) {
-                    state.selfMute = fakeVoiceState.selfMute;
-                    state.selfDeaf = fakeVoiceState.selfDeaf;
-                    state.selfVideo = fakeVoiceState.selfVideo;
-                }
-                return state;
-            };
-        }
     },
 
     contextMenus: {
@@ -112,14 +82,13 @@ export default definePlugin({
                     />
                 );
             }
-
             if (d.renderOutputDevices) {
                 children.push(
                     <Menu.MenuSeparator />,
                     <Menu.MenuCheckboxItem
                         id="fake-deafen"
                         label="Fake Deafen"
-                        checked={fakeVoiceState.selfDeaf}
+                        checked={fakeVoiceState.selfDeaf
                         action={() => {
                             fakeVoiceState.selfDeaf = !fakeVoiceState.selfDeaf;
                             update();
@@ -144,30 +113,12 @@ export default definePlugin({
         }
     },
 
-    // ✅ PATCH SEMPLIFICATE E CORRETTE
     patches: [
         {
-            // Patch principale voiceStateUpdate (ORIGINALE + SEMPLIFICATA)
             find: "voiceServerPing(){",
             replacement: {
-                match: /voiceStateUpdate\(\w+\){(.{0,50})guildId:/,
-                replace: "voiceStateUpdate($self.modifyVoiceState($1)){$1guildId:"
-            }
-        },
-        {
-            // Patch per il cambio canale
-            find: '"VOICE_STATE_UPDATE"',
-            replacement: {
-                match: /(\w+)\.updateVoiceState\(/,
-                replace: "$1.updateVoiceState($self.modifyVoiceState("
-            }
-        },
-        {
-            // Patch per setSelfMute
-            find: "setSelfMute(",
-            replacement: {
-                match: /setSelfMute\([^)]+\)/,
-                replace: "setSelfMute($&)&&$self.modifyVoiceState({selfMute:$self.fakeVoiceState.selfMute})"
+                match: /voiceStateUpdate\((\w+)\){(.{0,10})guildId:/,
+                replace: "voiceStateUpdate($1){$1=$self.modifyVoiceState($1);$2guildId:"
             }
         }
     ]
