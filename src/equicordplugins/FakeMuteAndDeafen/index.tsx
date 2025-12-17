@@ -14,7 +14,6 @@ const MediaEngineActions = findByPropsLazy("toggleSelfMute");
 const NotificationSettingsStore = findByPropsLazy("getDisableAllSounds", "getState");
 
 let updating = false;
-
 async function update() {
     if (updating) return setTimeout(update, 125);
     updating = true;
@@ -43,8 +42,12 @@ export const settings = definePluginSettings({
 const fakeVoiceState = {
     _selfMute: false,
     get selfMute() {
-        if (!settings.store.autoMute) return this._selfMute;
-        return this.selfDeaf || this._selfMute;
+        try {
+            if (!settings.store.autoMute) return this._selfMute;
+            return this.selfDeaf || this._selfMute;
+        } catch (e) {
+            return this._selfMute;
+        }
     },
     set selfMute(value) {
         this._selfMute = value;
@@ -53,19 +56,20 @@ const fakeVoiceState = {
     selfVideo: false
 };
 
+const StateKeys = ["selfDeaf", "selfMute", "selfVideo"];
+
 export default definePlugin({
     name: "FakeMuteAndDeafen",
     description: "You can fake mute and deafen yourself. You can continue speaking and being heard during this time.",
     authors: [Devs.feelslove],
     settings,
-
     modifyVoiceState(e) {
-        e.selfMute = fakeVoiceState.selfMute;
-        e.selfDeaf = fakeVoiceState.selfDeaf;
-        e.selfVideo = fakeVoiceState.selfVideo;
+        for (let i = 0; i < StateKeys.length; i++) {
+            const stateKey = StateKeys[i];
+            e[stateKey] = fakeVoiceState[stateKey] || e[stateKey];
+        }
         return e;
     },
-
     contextMenus: {
         "audio-device-context"(children, d) {
             if (d.renderInputDevices) {
@@ -82,13 +86,14 @@ export default definePlugin({
                     />
                 );
             }
+
             if (d.renderOutputDevices) {
                 children.push(
                     <Menu.MenuSeparator />,
                     <Menu.MenuCheckboxItem
                         id="fake-deafen"
                         label="Fake Deafen"
-                        checked={fakeVoiceState.selfDeaf
+                        checked={fakeVoiceState.selfDeaf}
                         action={() => {
                             fakeVoiceState.selfDeaf = !fakeVoiceState.selfDeaf;
                             update();
@@ -112,14 +117,15 @@ export default definePlugin({
             );
         }
     },
-
     patches: [
         {
             find: "voiceServerPing(){",
-            replacement: {
-                match: /voiceStateUpdate\((\w+)\){(.{0,10})guildId:/,
-                replace: "voiceStateUpdate($1){$1=$self.modifyVoiceState($1);$2guildId:"
-            }
+            replacement: [
+                {
+                    match: /voiceStateUpdate\((\w+)\){(.{0,10})guildId:/,
+                    replace: "voiceStateUpdate($1){$1=$self.modifyVoiceState($1);$2guildId:"
+                }
+            ]
         }
-    ]
+    ],
 });
