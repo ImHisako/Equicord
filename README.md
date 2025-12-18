@@ -13,7 +13,11 @@ Our included plugins can be found [here](https://equicord.org/plugins).
 ### Added Plugins on Illegalcord
 
 - Nitro Sniper : https://github.com/neoarz/NitroSniper/tree/main
-- FakeMuteAndDeafen : https://github.com/ImHisako/Illegalcord/blob/main/src/userplugins/NitroSniper/index.tsx (Based on Testcord one)
+- FakeMuteAndDeafen
+- BetterMic
+- BetterScreenshare
+- EnableStereo
+- BiggerFileUpload
 
 ## Installing Equicord Devbuild
 
