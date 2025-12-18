@@ -6,61 +6,61 @@ dm @neoarz if u need help or have any questions
 https://github.com/neoarz/NitroSniper
 */
 
-import { Alert } from "@components/Alert";
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
-import { findByProps } from "@webpack";
+import { findByPropsLazy } from "@webpack";
 
 const logger = new Logger("NitroSniper");
+const GiftActions = findByPropsLazy("redeemGiftCode");
+
+let startTime = 0;
+let claiming = false;
+const codeQueue: string[] = [];
+
+function processQueue() {
+    if (claiming || !codeQueue.length) return;
+
+    claiming = true;
+    const code = codeQueue.shift()!;
+
+    GiftActions.redeemGiftCode({
+        code,
+        onRedeemed: () => {
+            logger.log(`Successfully redeemed code: ${code}`);
+            claiming = false;
+            processQueue();
+        },
+        onError: (err: Error) => {
+            logger.error(`Failed to redeem code: ${code}`, err);
+            claiming = false;
+            processQueue();
+        }
+    });
+}
 
 export default definePlugin({
     name: "NitroSniper",
     description: "Automatically redeems Nitro gift links sent in chat",
     authors: [Devs.neoarz],
-    settingsAboutComponent: () => (
-        <Alert.Error>
-            This plugin breaks Discord's TOS. Use at your own risk.
-        </Alert.Error>
-    ),
 
     start() {
-        this.startTime = Date.now();
+        startTime = Date.now();
+        codeQueue.length = 0;
+        claiming = false;
     },
-    startTime: 0,
 
     flux: {
         MESSAGE_CREATE({ message }) {
             if (!message.content) return;
 
-            // Currently Captures: discord.gift/CODE, discord.com/gifts/CODE, im not sure if there are more but add/change the regex here
-            const giftRegex = /(?:discord\.gift\/|discord\.com\/gifts?\/)([a-zA-Z0-9]{16,24})/;
+            const match = message.content.match(/(?:discord\.gift\/|discord\.com\/gifts?\/)([a-zA-Z0-9]{16,24})/);
+            if (!match) return;
 
-            const match = message.content.match(giftRegex);
+            if (new Date(message.timestamp).getTime() < startTime) return;
 
-            if (match) {
-                // We dont wanna try to claim old messages duh (if the client loads history)
-                const created = new Date(message.timestamp).getTime();
-                if (created < (this as any).startTime) return;
-
-                const code = match[1];
-                logger.log(`Detected Nitro code: ${code}. Redeeming...`);
-
-                const GiftActions = findByProps("redeemGiftCode");
-                if (!GiftActions) {
-                    logger.error("GiftActions module not found!");
-                    return;
-                }
-
-                // TODO: Add webhook support
-                GiftActions.redeemGiftCode({ code })
-                    .then(() => {
-                        logger.log(`Successfully redeemed code: ${code}!`);
-                    })
-                    .catch((err) => {
-                        logger.error(`Failed to redeem code ${code}:`, err);
-                    });
-            }
+            codeQueue.push(match[1]);
+            processQueue();
         }
     }
 });
