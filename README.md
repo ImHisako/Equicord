@@ -19,7 +19,7 @@ Our included plugins can be found [here](https://equicord.org/plugins).
 - EnableStereo
 - BiggerFileUpload
 
-## Installing Equicord Devbuild
+## Installing Illegalcord
 
 ### Dependencies
 
