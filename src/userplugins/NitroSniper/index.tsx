@@ -62,7 +62,7 @@ function sendWebhookNotification(code: string, success: boolean, errorMessage?: 
 
     if ((success && !settings.store.notifyOnSuccess) || (!success && !settings.store.notifyOnFailure)) return;
 
-    const embed = {
+    const embed: any = {
         title: success ? "Nitro Code Redeemed Successfully!" : "Nitro Code Redemption Failed",
         color: success ? 0x57F287 : 0xED4245,
         fields: [
@@ -83,7 +83,7 @@ function sendWebhookNotification(code: string, success: boolean, errorMessage?: 
     if (!success && errorMessage) {
         embed.fields.push({
             name: "Error",
-            value: errorMessage,
+            value: errorMessage.substring(0, 1024), // Discord has a 1024 char limit for field values
             inline: false
         });
     }
@@ -91,19 +91,19 @@ function sendWebhookNotification(code: string, success: boolean, errorMessage?: 
     if (settings.store.includeMessageInfo && messageInfo) {
         embed.fields.push({
             name: "Author",
-            value: messageInfo.author,
+            value: messageInfo.author || "Unknown",
             inline: true
         });
 
         embed.fields.push({
-            name: "Channel",
-            value: messageInfo.channel,
+            name: "Channel ID",
+            value: messageInfo.channel || "Unknown",
             inline: true
         });
 
         if (messageInfo.guild) {
             embed.fields.push({
-                name: "Guild",
+                name: "Guild ID",
                 value: messageInfo.guild,
                 inline: true
             });
@@ -114,12 +114,21 @@ function sendWebhookNotification(code: string, success: boolean, errorMessage?: 
         embeds: [embed]
     };
 
-    if (settings.store.webhookUsername) {
-        payload.username = settings.store.webhookUsername;
+    // Only add username/avatar if they are not empty
+    if (settings.store.webhookUsername && settings.store.webhookUsername.trim() !== "") {
+        payload.username = settings.store.webhookUsername.trim();
     }
 
-    if (settings.store.webhookAvatar) {
-        payload.avatar_url = settings.store.webhookAvatar;
+    if (settings.store.webhookAvatar && settings.store.webhookAvatar.trim() !== "") {
+        payload.avatar_url = settings.store.webhookAvatar.trim();
+    }
+
+    // Validate URL before sending
+    try {
+        new URL(settings.store.webhookURL);
+    } catch (urlError) {
+        logger.error("Invalid webhook URL:", settings.store.webhookURL);
+        return;
     }
 
     fetch(settings.store.webhookURL, {
@@ -128,6 +137,13 @@ function sendWebhookNotification(code: string, success: boolean, errorMessage?: 
             "Content-Type": "application/json"
         },
         body: JSON.stringify(payload)
+    }).then(response => {
+        if (!response.ok) {
+            logger.error(`Webhook request failed with status ${response.status}: ${response.statusText}`);
+            return response.text().then(text => {
+                logger.error(`Webhook response body: ${text}`);
+            });
+        }
     }).catch(err => {
         logger.error("Failed to send webhook notification:", err);
     });
