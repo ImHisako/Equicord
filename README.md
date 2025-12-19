@@ -12,13 +12,13 @@ Our included plugins can be found [here](https://equicord.org/plugins).
 
 ### Added Plugins on Illegalcord
 
-- Nitro Sniper : https://github.com/neoarz/NitroSniper/tree/main
+- Nitro Sniper : (https://github.com/neoarz/NitroSniper/tree/main)
 - FakeMuteAndDeafen
 - BetterMic
 - BetterScreenshare
 - EnableStereo
 - BiggerFileUpload
-- Stalker (https://github.com/Reycko/EquicordPlugins/tree/main/stalker)
+- Stalker : (https://github.com/Reycko/EquicordPlugins/tree/main/stalker)
 
 ## Installing Illegalcord
 
