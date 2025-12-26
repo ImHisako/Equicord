@@ -256,17 +256,15 @@ export function migratePluginToSettings(newName: string, oldName: string, ...set
     const newPlugin = plugins[newName];
     const oldPlugin = plugins[oldName];
 
-    if (!newPlugin || !oldPlugin) return;
-
-    if (oldPlugin?.enabled) {
+    if (newPlugin && oldPlugin?.enabled) {
         for (const settingName of settingNames) {
             logger.info(`Migrating plugin to setting from old name ${oldName} to ${newName} as ${settingName}`);
-            oldPlugin.enabled = false;
             newPlugin[settingName] = true;
-            if (!newPlugin?.enabled) newPlugin.enabled = true;
-            delete plugins[oldName];
-            SettingsStore.markAsChanged();
         }
+
+        newPlugin.enabled = true;
+        delete plugins[oldName];
+        SettingsStore.markAsChanged();
     }
 }
 
